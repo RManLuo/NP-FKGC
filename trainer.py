@@ -48,7 +48,7 @@ class Trainer:
         degrees = self.build_connection(max_=self.max_neighbor)
         kg = self.build_kg(dataset['ent2emb'], dataset['rel2emb'], max_=self.max_neighbor)
 
-        self.metaR = MetaR(kg, dataset, parameter, self.num_symbols, embed = self.symbol2vec)
+        self.metaR = NPFKGC(kg, dataset, parameter, self.num_symbols, embed=self.symbol2vec)
         self.metaR.to(self.device)
         # optimizer
         self.optimizer = torch.optim.Adam(self.metaR.parameters(), self.learning_rate)
@@ -75,7 +75,6 @@ class Trainer:
         # load state_dict and params
         if parameter['step'] in ['test', 'dev']:
             self.reload()
-
 
     def load_symbol2id(self):
 
@@ -145,13 +144,14 @@ class Trainer:
 
             self.symbol2id = symbol_id
             self.symbol2vec = embeddings
-            #print(symbol_idinv)
-            #exit(-1)
+            # print(symbol_idinv)
+            # exit(-1)
+
     def build_kg(self, ent_emb, rel_emb, max_=100):
         print("Build KG...")
-        src=[]
-        dst=[]
-        e_feat=[]
+        src = []
+        dst = []
+        e_feat = []
         e_id = []
         with open(self.data_path + '/path_graph') as f:
             lines = f.readlines()
@@ -166,7 +166,7 @@ class Trainer:
                 dst.append(self.ent2id[e1])
                 e_feat.append(rel_emb[self.rel2id[rel + '_inv']])
                 e_id.append(self.rel2id[rel + '_inv'])
-                
+
         src = torch.LongTensor(src)
         dst = torch.LongTensor(src)
         kg = dgl.graph((src, dst))
@@ -174,7 +174,7 @@ class Trainer:
         kg.edata['feat'] = torch.FloatTensor(np.array(e_feat))
         kg.edata['eid'] = torch.LongTensor(np.array(e_id))
         return kg
-    
+
     def build_connection(self, max_=100):
         # connections[0] : ent2id
         # connections[1] : neighbor ID
@@ -207,9 +207,11 @@ class Trainer:
         return degrees
 
     def get_meta(self, left, right):
-        left_connections = Variable(torch.LongTensor(np.stack([self.connections[_,:,:] for _ in left], axis=0))).cuda()
+        left_connections = Variable(
+            torch.LongTensor(np.stack([self.connections[_, :, :] for _ in left], axis=0))).cuda()
         left_degrees = Variable(torch.FloatTensor([self.e1_degrees[_] for _ in left])).cuda()
-        right_connections = Variable(torch.LongTensor(np.stack([self.connections[_,:,:] for _ in right], axis=0))).cuda()
+        right_connections = Variable(
+            torch.LongTensor(np.stack([self.connections[_, :, :] for _ in right], axis=0))).cuda()
         right_degrees = Variable(torch.FloatTensor([self.e1_degrees[_] for _ in right])).cuda()
         return (left_connections, left_degrees, right_connections, right_degrees)
 
@@ -253,7 +255,7 @@ class Trainer:
 
     def logging_training_data(self, data, epoch):
         logging.info("Epoch: {}\tMRR: {:.3f}\tHits@10: {:.3f}\tHits@5: {:.3f}\tHits@1: {:.3f}\r".format(
-                      epoch, data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
+            epoch, data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
 
     def logging_eval_data(self, data, state_path, istest=False):
         setname = 'dev set'
@@ -261,8 +263,8 @@ class Trainer:
             setname = 'test set'
         logging.info("Eval {} on {}".format(state_path, setname))
         logging.info("MRR: {:.3f}\tHits@10: {:.3f}\tHits@5: {:.3f}\tHits@1: {:.3f}\r".format(
-                      data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
-            
+            data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
+
     def rank_predict(self, data, x, ranks):
         # query_idx is the idx of positive score
         query_idx = x.shape[0] - 1
@@ -285,31 +287,31 @@ class Trainer:
         support_left = [self.ent2id[few[0]] for batch in support for few in batch]
         support_right = [self.ent2id[few[2]] for batch in support for few in batch]
         if iseval == False:
-            meta_left = [[0]*self.batch_size for i in range(self.few)]
-            meta_right = [[0]*self.batch_size for i in range(self.few)]
+            meta_left = [[0] * self.batch_size for i in range(self.few)]
+            meta_right = [[0] * self.batch_size for i in range(self.few)]
         if iseval == True:
             meta_left = [[0] for i in range(self.few)]
             meta_right = [[0] for i in range(self.few)]
 
-            #print(len(meta_left))
-            #print(len(meta_left[0]))
+            # print(len(meta_left))
+            # print(len(meta_left[0]))
         for i in range(len(meta_left)):
             for j in range(len(meta_left[0])):
-                meta_left[i][j] = support_left[j*self.few + i]
+                meta_left[i][j] = support_left[j * self.few + i]
         for i in range(len(meta_right)):
             for j in range(len(meta_right[0])):
-                meta_right[i][j] = support_right[j*self.few + i]
-            
+                meta_right[i][j] = support_right[j * self.few + i]
+
         support_meta = []
         for i in range(len(meta_left)):
-                #print(len(meta_left[0]))
-                #print(meta_left[0])
+            # print(len(meta_left[0]))
+            # print(meta_left[0])
             support_meta.append(self.get_meta(meta_left[i], meta_right[i]))
         if not iseval:
             self.optimizer.zero_grad()
-            #print(task[0][0])
-            
-            #print(support_meta)
+            # print(task[0][0])
+
+            # print(support_meta)
 
             p_score, n_score, kld = self.metaR(task, iseval, curr_rel, support_meta, istest)
             y = torch.ones_like(p_score).to(self.device)
@@ -410,12 +412,14 @@ class Trainer:
                     l = len(iterable)
                     for ndx in range(0, l, n):
                         yield [iterable[ndx:min(ndx + n, l)]]
+
                 score_list = []
                 support_triples, support_negative_triples, query_triple, negative_triples = eval_task
                 self.metaR.eval_reset()
                 for neg_batch in batch(negative_triples[0], self.eval_batch_size):
                     eval_task_batch = [support_triples, support_negative_triples, query_triple, neg_batch]
-                    _, p_score, n_score = self.do_one_step(eval_task_batch, iseval=True, curr_rel=curr_rel, istest=istest, batch_eval=True)
+                    _, p_score, n_score = self.do_one_step(eval_task_batch, iseval=True, curr_rel=curr_rel,
+                                                           istest=istest, batch_eval=True)
                     score_list.append(n_score.detach().cpu())
                 score_list.append(p_score.detach().cpu())
                 x = torch.cat(score_list, 1).squeeze()
@@ -432,7 +436,7 @@ class Trainer:
             sys.stdout.write("{}\tMRR: {:.3f}\tHits@10: {:.3f}\tHits@5: {:.3f}\tHits@1: {:.3f}\r".format(
                 t, temp['MRR'], temp['Hits@10'], temp['Hits@5'], temp['Hits@1']))
             sys.stdout.flush()
-            #if t>50:
+            # if t>50:
             #    break
 
         # print overall evaluation result and return it
@@ -445,7 +449,7 @@ class Trainer:
             self.logging_eval_data(data, self.state_dict_file, istest)
 
         print("{}\tMRR: {:.3f}\tHits@10: {:.3f}\tHits@5: {:.3f}\tHits@1: {:.3f}\r".format(
-               t, data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
+            t, data['MRR'], data['Hits@10'], data['Hits@5'], data['Hits@1']))
 
         return data
 
@@ -465,7 +469,7 @@ class Trainer:
 
         for rel in data_loader.all_rels:
             print("rel: {}, num_cands: {}, num_tasks:{}".format(
-                   rel, len(data_loader.rel2candidates[rel]), len(data_loader.tasks[rel][self.few:])))
+                rel, len(data_loader.rel2candidates[rel]), len(data_loader.tasks[rel][self.few:])))
             data = {'MRR': 0, 'Hits@1': 0, 'Hits@5': 0, 'Hits@10': 0}
             temp = dict()
             t = 0
@@ -488,7 +492,7 @@ class Trainer:
                 sys.stdout.flush()
 
             print("{}\tMRR: {:.3f}\tHits@10: {:.3f}\tHits@5: {:.3f}\tHits@1: {:.3f}\r".format(
-                   t, temp['MRR'], temp['Hits@10'], temp['Hits@5'], temp['Hits@1']))
+                t, temp['MRR'], temp['Hits@10'], temp['Hits@5'], temp['Hits@1']))
 
             for k in data.keys():
                 all_data[k] += data[k]

@@ -14,7 +14,7 @@ def get_params():
 
     args.add_argument("-dim", "--embed_dim", default=100, type=int)
     args.add_argument("-bs", "--batch_size", default=128, type=int)
-    args.add_argument("-lr", "--learning_rate", default=0.001, type=float)	# 0.001
+    args.add_argument("-lr", "--learning_rate", default=0.001, type=float)  # 0.001
     args.add_argument("-es_p", "--early_stopping_patience", default=3, type=int)
 
     args.add_argument("-epo", "--epoch", default=100000, type=int)
@@ -22,8 +22,8 @@ def get_params():
     args.add_argument("-eval_epo", "--eval_epoch", default=1000, type=int)
     args.add_argument("-ckpt_epo", "--checkpoint_epoch", default=1000, type=int)
 
-    args.add_argument("-b", "--beta", default=5, type=float)	# 5
-    args.add_argument("-m", "--margin", default=1.0, type=float)	# default: 1
+    args.add_argument("-b", "--beta", default=5, type=float)  # 5
+    args.add_argument("-m", "--margin", default=1.0, type=float)  # default: 1
     args.add_argument("-p", "--dropout_p", default=0.5, type=float)
     args.add_argument("-abla", "--ablation", default=False, type=bool)
 
@@ -39,7 +39,7 @@ def get_params():
     args.add_argument("-max_neighbor", "--max_neighbor", default=200, type=int)
     args.add_argument("-lstm_hiddendim", "--lstm_hiddendim", default=700, type=int)
     args.add_argument("-lstm_layers", "--lstm_layers", default=2, type=int)
-    
+
     args.add_argument("-hop", "--hop", default=2, type=int)
     args.add_argument("--flow", choices=['none', 'Planar', 'Radial', 'RealNVP'], default='none', type=str)
     args.add_argument("--K", default=10, type=int)
@@ -55,7 +55,7 @@ def get_params():
     elif args.dataset == 'Wiki-One':
         params['embed_dim'] = 50
 
-    params['device'] = torch.device('cuda:'+str(args.device))
+    params['device'] = torch.device('cuda:' + str(args.device))
 
     return params
 

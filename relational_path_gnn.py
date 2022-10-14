@@ -15,15 +15,17 @@ class RelationalPathGNN(nn.Module):
         self.es = parameter['embed_dim']
         self.g_batch = parameter['g_batch']
         self.g = g
-        self.sampler = dgl.dataloading.MultiLayerFullNeighborSampler(parameter['hop'], prefetch_node_feats=['feat'], prefetch_edge_feats=['feat', 'eid'])
-        self.gcn = RPGNN(self.es, self.es * 2, self.es, self.hop, num_rel) # StochasticTwoLayerGCN(self.es, self.es * 2, self.es)
+        self.sampler = dgl.dataloading.MultiLayerFullNeighborSampler(parameter['hop'], prefetch_node_feats=['feat'],
+                                                                     prefetch_edge_feats=['feat', 'eid'])
+        self.gcn = RPGNN(self.es, self.es * 2, self.es, self.hop,
+                         num_rel)
         self.num_rel = num_rel
-    
+
     def ent2id(self, triples):
         idx = [[[self.ent2id_dict[t[0]], self.ent2id_dict[t[2]]] for t in batch] for batch in triples]
         idx = torch.LongTensor(idx).to(self.device)
-        return idx # B * few * 2
-    
+        return idx  # B * few * 2
+
     def forward(self, triples):
         '''
         inputs:
@@ -51,6 +53,7 @@ class RelationalPathGNN(nn.Module):
         out_emb = out_emb.view(batch_size, few_shot, 2, -1)
         return out_emb
 
+
 class StochasticTwoLayerGCN(nn.Module):
     def __init__(self, in_features, hidden_features, out_features):
         super().__init__()
@@ -61,7 +64,8 @@ class StochasticTwoLayerGCN(nn.Module):
         x = F.relu(self.conv1(blocks[0], x))
         x = F.relu(self.conv2(blocks[1], x))
         return x
-    
+
+
 class RPGNN(nn.Module):
     def __init__(self, in_features, hidden_features, out_features, hop, n_rel):
         super().__init__()
@@ -70,7 +74,9 @@ class RPGNN(nn.Module):
         self.conv_out = RPLayer(emb_dim, hidden_features, out_features, n_rel)
         self.hop = hop
         if hop > 2:
-            self.conv_hidden = nn.ModuleList([RPLayer(emb_dim, hidden_features, hidden_features, n_rel) for _ in range(hop - 2)])
+            self.conv_hidden = nn.ModuleList(
+                [RPLayer(emb_dim, hidden_features, hidden_features, n_rel) for _ in range(hop - 2)])
+
     def forward(self, blocks, x):
         x = F.relu(self.conv_in(blocks[0], x))
         if self.hop > 2:
@@ -78,6 +84,7 @@ class RPGNN(nn.Module):
                 x = F.relu(conv(blocks[i + 1], x))
         x = F.relu(self.conv_out(blocks[-1], x))
         return x
+
 
 class RPLayer(nn.Module):
     def __init__(self, emb_dim, in_feat, out_feat, num_rels):
@@ -88,13 +95,13 @@ class RPLayer(nn.Module):
         self.h_bias = nn.Parameter(torch.Tensor(out_feat))
         self.loop_weight = nn.Parameter(torch.Tensor(emb_dim, out_feat))
         nn.init.xavier_uniform_(self.loop_weight, gain=nn.init.calculate_gain('relu'))
-    
+
     def edge_agg(self, edges):
         """Relation Message Passing"""
         x = torch.cat([edges.src['h'], edges.data['feat'], edges.dst['feat']], dim=1)
         m = self.linear_r(x, edges.data['eid'])
-        attn =  F.leaky_relu(self.attn_fc(torch.cat([edges.dst['feat'], m], dim=1)))
-        return {'h' : m, 'z': attn}
+        attn = F.leaky_relu(self.attn_fc(torch.cat([edges.dst['feat'], m], dim=1)))
+        return {'h': m, 'z': attn}
 
     def forward(self, g, feat):
         with g.local_scope():
@@ -119,5 +126,5 @@ class RPLayer(nn.Module):
             norm = torch.reshape(norm, shp)
             rst = h * norm
             h = rst + self.h_bias
-        
+
             return h
