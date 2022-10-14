@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 import torch
 import torch.nn.functional as F
-from hyper_embedding import *
 from torch.autograd import Variable
 from torch.distributions import kl_divergence
 
@@ -120,10 +119,8 @@ class MetaR(nn.Module):
         self.abla = parameter['ablation']
         self.rel2id = dataset['rel2id']
         self.num_rel = len(self.rel2id)
-        self.embedding = Embedding(dataset, parameter)
         self.few = parameter['few']
         self.dropout = nn.Dropout(0.5)
-        self.symbol_emb = nn.Embedding(num_symbols + 1, self.embed_dim, padding_idx = num_symbols)
         self.num_hidden1 = 500
         self.num_hidden2 = 200
         self.lstm_dim = parameter['lstm_hiddendim']
@@ -131,9 +128,6 @@ class MetaR(nn.Module):
         self.np_flow = parameter['flow']
         
         self.r_path_gnn = RelationalPathGNN(g, dataset['ent2id'], len(dataset['rel2emb']), parameter)
-
-        self.symbol_emb.weight.data.copy_(torch.from_numpy(embed))
-        self.symbol_emb.weight.requires_grad = False
 
         if parameter['dataset'] == 'Wiki-One':
             self.r_dim = self.z_dim = 50
