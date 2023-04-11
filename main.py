@@ -1,6 +1,7 @@
 from data_loader import *
 from params import *
 from trainer import *
+import json
 
 if __name__ == '__main__':
     params = get_params()

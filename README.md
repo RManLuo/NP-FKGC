@@ -1,5 +1,5 @@
 # NP-FKGC
-
+Official code implementation for SIGIR 23 paper Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion
 ## Requirement
 ```
 pytorch==1.11
@@ -60,3 +60,27 @@ FB15K
 python main.py --dataset FB15K-One --data_path ./FB15K --few 5 --data_form Pre-Train --prefix np_rgcn_attn_planar_fb15k_5shot_intrain_0.536 --device 0 --batch_size 128 --flow Planar --g_batch 1024 --eval_batch_size 128 --K 14 --step test
 ```
 
+## Results
+5-shot FKGC results
+| Dataset | MRR   | Hits@10 | Hits@5 | Hits@1 |
+| ------- | ----- | ------- | ------ | ------ |
+| NELL    | 0.460 | 0.494   | 0.471  | 0.437  |
+| WIKI    | 0.503 | 0.668   | 0.599  | 0.423  |
+| FB15K   | 0.538 | 0.671   | 0.593  | 0.476  |
+
+See full results in our paper.
+
+## Citations
+If you use this repo, please cite the following paper.
+```
+@inproceedings{
+ luo2023npfkgc,
+ title={Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion},
+ author={Linhao Luo, Yuan-Fang Li, Gholamreza Haffari, and Shirui Pan},
+ booktitle={The 46th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+ year={2023}
+}
+```
+
+## Acknowledgement
+This repo is mainly based on [GANA](https://github.com/ngl567/GANA-FewShotKGC). We thank the authors for their great work.

@@ -9,6 +9,8 @@ import torch
 from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from tqdm import tqdm
+import json
+import numpy as np
 
 from model import *
 
@@ -65,8 +67,12 @@ class Trainer:
         self.state_dict_file = ''
 
         # logging
-        logging_dir = os.path.join(self.parameter['log_dir'], self.parameter['prefix'], 'res.log')
-        logging.basicConfig(filename=logging_dir, level=logging.INFO, format="%(asctime)s - %(message)s", force=True)
+        logging_dir = os.path.join(
+            self.parameter['log_dir'], self.parameter['prefix'])
+        if not os.path.exists(logging_dir):
+            os.makedirs(logging_dir)
+        logging.basicConfig(filename=os.path.join(logging_dir, "res.log"),
+                            level=logging.INFO, format="%(asctime)s - %(message)s", force=True)
         logging.info('*' * 100)
         logging.info('*** hyper-parameters ***')
         for k, v in parameter.items():
@@ -225,7 +231,7 @@ class Trainer:
         print('reload state_dict from {}'.format(state_dict_file))
         state = torch.load(state_dict_file, map_location=self.device)
         if os.path.isfile(state_dict_file):
-            self.metaR.load_state_dict(state)
+            self.metaR.load_state_dict(state, strict=False)
         else:
             raise RuntimeError('No state dict in {}!'.format(state_dict_file))
 

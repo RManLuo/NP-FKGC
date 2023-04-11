@@ -1,11 +1,11 @@
 from collections import OrderedDict
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.distributions import kl_divergence
 
-from embedding import *
 from flow import Flow
 from relational_path_gnn import RelationalPathGNN
 
