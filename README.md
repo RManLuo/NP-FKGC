@@ -83,4 +83,4 @@ If you use this repo, please cite the following paper.
 ```
 
 ## Acknowledgement
-This repo is mainly based on [GANA](https://github.com/ngl567/GANA-FewShotKGC). We thank the authors for their great work.
+This repo is mainly based on [GANA](https://github.com/ngl567/GANA-FewShotKGC). We thank the authors for their great works.
