@@ -19,7 +19,7 @@ Note: Please make sure `dgl==0.9.0` and use CUDA, our codes rely on a small [bug
 ## Dataset & Checkpoint
 ### Original Dataset
 * [NELL/WIKI](https://github.com/xwhan/One-shot-Relational-Learning)
-* [FB15K](https://github.com/SongW-SW/REFORM)
+* [FB15K-237](https://github.com/SongW-SW/REFORM)
 ### Processed Dataset
 * [Dataset](https://drive.google.com/drive/u/0/folders/1vN1AMapGZaUnQ4c7gPiBmO_nB6vvhj1c)
 * [Checkpoint](https://drive.google.com/drive/u/0/folders/1gpHkQDgr5KzAXptl_fa1pATvk__prYUc)
@@ -37,7 +37,7 @@ WIKI (A100)
 python main.py --dataset Wiki-One --data_path ./Wiki --few 5 --data_form Pre-Train --prefix np_rgcn_attn_planar_wiki_5shot_intrain_g_batch_1024_eval_8 --device 0 --batch_size 64 --flow Planar -dim 50 --g_batch 1024 --eval_batch 8 --eval_epoch 4000
 ```
 
-FB15K (3090)
+FB15K-237 (3090)
 ```bash
 python main.py --dataset FB15K-One --data_path ./FB15K --few 5 --data_form Pre-Train --prefix np_rgcn_attn_planar_fb15k_5shot_intrain --device 0 --batch_size 128 --flow Planar --g_batch 1024 --eval_batch_size 128 --K 14
 ```
@@ -55,7 +55,7 @@ WIKI
 python main.py --dataset Wiki-One --data_path ./Wiki --few 5 --data_form Pre-Train --prefix np_rgcn_attn_planar_wiki_5shot_intrain_g_batch_1024_eval_8_0.503 --device 0 --batch_size 64 --flow Planar -dim 50 --g_batch 1024 --eval_batch 8 --eval_epoch 4000 --step test
 ```
 
-FB15K
+FB15K-237
 ```bash
 python main.py --dataset FB15K-One --data_path ./FB15K --few 5 --data_form Pre-Train --prefix np_rgcn_attn_planar_fb15k_5shot_intrain_0.536 --device 0 --batch_size 128 --flow Planar --g_batch 1024 --eval_batch_size 128 --K 14 --step test
 ```
@@ -66,7 +66,7 @@ python main.py --dataset FB15K-One --data_path ./FB15K --few 5 --data_form Pre-T
 | ------- | ----- | ------- | ------ | ------ |
 | NELL    | 0.460 | 0.494   | 0.471  | 0.437  |
 | WIKI    | 0.503 | 0.668   | 0.599  | 0.423  |
-| FB15K   | 0.538 | 0.671   | 0.593  | 0.476  |
+| FB15K-237   | 0.538 | 0.671   | 0.593  | 0.476  |
 
 See full results in our paper.
 
