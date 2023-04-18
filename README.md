@@ -1,5 +1,5 @@
 # NP-FKGC
-Official code implementation for SIGIR 23 paper Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion
+Official code implementation for SIGIR 23 paper [Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion](https://arxiv.org/abs/2304.08183)
 ## Requirement
 ```
 pytorch==1.11
