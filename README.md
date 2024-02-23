@@ -73,12 +73,11 @@ See full results in our paper.
 ## Citations
 If you use this repo, please cite the following paper.
 ```
-@inproceedings{
- luo2023npfkgc,
- title={Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion},
- author={Linhao Luo, Yuan-Fang Li, Gholamreza Haffari, and Shirui Pan},
- booktitle={The 46th International ACM SIGIR Conference on Research and Development in Information Retrieval},
- year={2023}
+@inproceedings{luo2023npfkgc,
+  title     = {Normalizing Flow-based Neural Process for Few-Shot Knowledge Graph Completion},
+  author    = {Luo, Linhao and Li, Yuan-Fang and Haffari, Gholamreza and Pan, Shirui},
+  booktitle = {The 46th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  year      = {2023}
 }
 ```
 
