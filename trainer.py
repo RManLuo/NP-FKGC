@@ -174,7 +174,7 @@ class Trainer:
                 e_id.append(self.rel2id[rel + '_inv'])
 
         src = torch.LongTensor(src)
-        dst = torch.LongTensor(src)
+        dst = torch.LongTensor(dst)
         kg = dgl.graph((src, dst))
         kg.ndata['feat'] = torch.FloatTensor(ent_emb)
         kg.edata['feat'] = torch.FloatTensor(np.array(e_feat))
